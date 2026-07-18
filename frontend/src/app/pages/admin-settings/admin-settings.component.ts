@@ -1,12 +1,15 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  OnInit,
   computed,
+  inject,
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NavBarComponent } from '../../components/nav-bar/nav-bar.component';
 import { ServiceSetting } from '../../core/models';
+import { AdminSettingsService } from '../../core/admin-settings.service';
 
 @Component({
   selector: 'app-admin-settings',
@@ -16,46 +19,15 @@ import { ServiceSetting } from '../../core/models';
   templateUrl: './admin-settings.component.html',
   styleUrl: './admin-settings.component.css',
 })
-export class AdminSettingsComponent {
+export class AdminSettingsComponent implements OnInit {
+  private readonly api = inject(AdminSettingsService);
+
   loading = signal(false);
   error = signal<string | null>(null);
   saved = signal(false);
 
-  // Managed service credentials — signal per the data contract.
-  settings = signal<ServiceSetting[]>([
-    {
-      key: 'DATABASE_URL',
-      service: 'PostgreSQL',
-      label: 'Connection string',
-      configured: true,
-      maskedValue: 'postgres://····@db.internal:5432/shifthands',
-      placeholder: 'postgres://user:password@host:5432/dbname',
-    },
-    {
-      key: 'MINIO_ENDPOINT',
-      service: 'MinIO',
-      label: 'Endpoint URL',
-      configured: false,
-      maskedValue: '',
-      placeholder: 'https://minio.internal:9000',
-    },
-    {
-      key: 'MINIO_ACCESS_KEY',
-      service: 'MinIO',
-      label: 'Access key',
-      configured: false,
-      maskedValue: '',
-      placeholder: 'AKIA…',
-    },
-    {
-      key: 'MINIO_SECRET_KEY',
-      service: 'MinIO',
-      label: 'Secret key',
-      configured: false,
-      maskedValue: '',
-      placeholder: '••••••••',
-    },
-  ]);
+  // Managed service credentials, loaded live from the backend.
+  settings = signal<ServiceSetting[]>([]);
 
   drafts: Record<string, string> = {};
 
@@ -77,6 +49,22 @@ export class AdminSettingsComponent {
     this.settings().some((s) => !s.configured),
   );
 
+  ngOnInit(): void {
+    void this.load();
+  }
+
+  private async load(): Promise<void> {
+    this.loading.set(true);
+    this.error.set(null);
+    try {
+      this.settings.set(await this.api.list());
+    } catch {
+      this.error.set('Failed to load settings.');
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
   draftValue(key: string): string {
     return this.drafts[key] ?? '';
   }
@@ -85,31 +73,26 @@ export class AdminSettingsComponent {
     this.drafts = { ...this.drafts, [key]: value };
   }
 
-  saveService(name: string): void {
-    this.settings.update((list) =>
-      list.map((s) => {
-        if (s.service !== name) {
-          return s;
-        }
-        const draft = this.drafts[s.key];
-        if (draft && draft.trim()) {
-          return {
-            ...s,
-            configured: true,
-            maskedValue: this.mask(draft.trim()),
-          };
-        }
-        return s;
-      }),
-    );
-    this.saved.set(true);
-    setTimeout(() => this.saved.set(false), 2500);
-  }
-
-  private mask(value: string): string {
-    if (value.length <= 4) {
-      return '••••';
+  async saveService(name: string): Promise<void> {
+    const updates: Record<string, string> = {};
+    for (const s of this.settings()) {
+      if (s.service !== name) continue;
+      const draft = this.drafts[s.key];
+      if (draft && draft.trim()) {
+        updates[s.key] = draft.trim();
+      }
     }
-    return `${value.slice(0, 4)}${'·'.repeat(6)}${value.slice(-2)}`;
+    if (Object.keys(updates).length === 0) {
+      return;
+    }
+    this.error.set(null);
+    try {
+      this.settings.set(await this.api.update(updates));
+      this.drafts = {};
+      this.saved.set(true);
+      setTimeout(() => this.saved.set(false), 2500);
+    } catch {
+      this.error.set('Failed to save credentials.');
+    }
   }
 }

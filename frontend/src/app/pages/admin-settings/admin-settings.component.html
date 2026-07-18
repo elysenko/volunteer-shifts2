@@ -21,6 +21,12 @@
       </div>
     }
 
+    @if (error()) {
+      <div class="alert alert-error" data-testid="settings-error">
+        {{ error() }}
+      </div>
+    }
+
     @for (svc of services(); track svc.name) {
       <section class="card service-card" [attr.data-testid]="'service-' + svc.name">
         <div class="service-head">
