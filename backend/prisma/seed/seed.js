@@ -6,37 +6,92 @@
  * Usage:  node prisma/seed/seed.js
  * Called by: npx prisma db seed  (via package.json "prisma.seed" field)
  *
- * NOTE: This base seed creates users without passwords (base schema has no password column).
- * When the coder adds password-based auth, this file MUST be updated to upsert password hashes.
- * See coder.md constraints: "Seed script must be production-runnable."
+ * Seeds 1 ADMIN + 2 USER (volunteer) accounts with bcrypt-hashed passwords,
+ * a set of upcoming sample shifts, and a few signups. Idempotent: safe to run
+ * on every container start. Prints SEED_CREDS_JSON=[...] for the platform.
  */
 const { PrismaClient } = require('@prisma/client');
-const { createHash } = require('crypto');
+const bcrypt = require('bcryptjs');
 
 const prisma = new PrismaClient();
 
-function derivePassword(email) {
-  return createHash('sha256')
-    .update(email + (process.env.SEED_SECRET || 'colossus-seed'))
-    .digest('hex')
-    .slice(0, 16);
+const SEED_USERS = [
+  { email: 'admin@demo.org', name: 'Demo Admin', role: 'ADMIN', password: 'admin1234' },
+  { email: 'sam@demo.org',   name: 'Sam Rivera', role: 'USER',  password: 'volunteer1' },
+  { email: 'jo@demo.org',    name: 'Jo Chen',    role: 'USER',  password: 'volunteer2' },
+];
+
+function daysFromNow(days, hour) {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  d.setHours(hour, 0, 0, 0);
+  return d;
 }
 
-const SEED_USERS = [
-  { email: 'admin@example.com', name: 'Admin User',   role: 'ADMIN' },
-  { email: 'user@example.com',  name: 'Regular User', role: 'USER'  },
+const SEED_SHIFTS = [
+  { key: 'shift-food-1',    role: 'Food Bank Sorter',   location: 'Downtown Pantry',            startsAt: daysFromNow(2, 9),  hours: 3, capacity: 4 },
+  { key: 'shift-reception', role: 'Front Desk Greeter', location: 'Community Center',            startsAt: daysFromNow(3, 13), hours: 4, capacity: 2 },
+  { key: 'shift-garden',    role: 'Garden Helper',      location: 'Riverside Community Garden',  startsAt: daysFromNow(5, 8),  hours: 2, capacity: 6 },
+  { key: 'shift-tutoring',  role: 'Reading Tutor',      location: 'Eastside Library',            startsAt: daysFromNow(6, 16), hours: 2, capacity: 3 },
+  { key: 'shift-cleanup',   role: 'Park Cleanup Crew',  location: 'Lakeview Park',               startsAt: daysFromNow(8, 10), hours: 5, capacity: 8 },
 ];
 
 async function main() {
+  const usersByEmail = {};
+  const creds = [];
+
   for (const u of SEED_USERS) {
-    const password = derivePassword(u.email);
-    await prisma.user.upsert({
+    const passwordHash = await bcrypt.hash(u.password, 10);
+    const user = await prisma.user.upsert({
       where:  { email: u.email },
-      update: { name: u.name, role: u.role },
-      create: { email: u.email, name: u.name, role: u.role },
+      update: { name: u.name, role: u.role, passwordHash },
+      create: { email: u.email, name: u.name, role: u.role, passwordHash },
     });
-    console.log(`SEED_CRED ${u.role} ${u.email} ${password}`);
+    usersByEmail[u.email] = user;
+    creds.push({ email: u.email, password: u.password, role: u.role });
+    console.log(`SEED_CRED ${u.role} ${u.email} ${u.password}`);
   }
+
+  const shiftsByKey = {};
+  for (const s of SEED_SHIFTS) {
+    // Match by role+location to stay idempotent across repeated runs.
+    const existing = await prisma.shift.findFirst({
+      where: { role: s.role, location: s.location },
+    });
+    const shift = existing
+      ? await prisma.shift.update({
+          where: { id: existing.id },
+          data: { startsAt: s.startsAt, hours: s.hours, capacity: s.capacity },
+        })
+      : await prisma.shift.create({
+          data: {
+            role: s.role,
+            location: s.location,
+            startsAt: s.startsAt,
+            hours: s.hours,
+            capacity: s.capacity,
+          },
+        });
+    shiftsByKey[s.key] = shift;
+  }
+
+  const sampleSignups = [
+    { email: 'sam@demo.org', key: 'shift-food-1' },
+    { email: 'sam@demo.org', key: 'shift-garden' },
+    { email: 'jo@demo.org',  key: 'shift-reception' },
+  ];
+  for (const sig of sampleSignups) {
+    const user = usersByEmail[sig.email];
+    const shift = shiftsByKey[sig.key];
+    if (!user || !shift) continue;
+    await prisma.signup.upsert({
+      where: { userId_shiftId: { userId: user.id, shiftId: shift.id } },
+      update: {},
+      create: { userId: user.id, shiftId: shift.id },
+    });
+  }
+
+  console.log('SEED_CREDS_JSON=' + JSON.stringify(creds));
 }
 
 main()
