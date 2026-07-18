@@ -1,0 +1,13 @@
+# Dependencies
+/node_modules
+
+# Build output
+/dist
+
+# TypeScript incremental build cache — must never be committed; a stale
+# buildinfo makes `tsc` skip emit and produce an empty dist at deploy time.
+*.tsbuildinfo
+
+# Logs / env
+*.log
+.env
