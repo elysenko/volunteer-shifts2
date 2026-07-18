@@ -7,6 +7,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
+import { apiErrorMessage } from '../../core/auth.interceptor';
 
 @Component({
   selector: 'app-login',
@@ -26,21 +27,36 @@ export class LoginComponent {
   error = signal<string | null>(null);
   loading = signal(false);
 
-  submit(): void {
+  async submit(): Promise<void> {
     this.error.set(null);
     if (!this.email().trim() || !this.password()) {
       this.error.set('Please enter your email and password.');
       return;
     }
     this.loading.set(true);
-    this.auth.login(this.email(), this.password());
-    this.loading.set(false);
-    this.redirect();
+    try {
+      await this.auth.login(this.email(), this.password());
+      this.redirect();
+    } catch (err) {
+      this.error.set(apiErrorMessage(err, 'Invalid email or password.'));
+    } finally {
+      this.loading.set(false);
+    }
   }
 
-  demo(): void {
-    this.auth.demoLogin();
-    this.redirect();
+  async demo(): Promise<void> {
+    this.error.set(null);
+    this.loading.set(true);
+    try {
+      await this.auth.demoLogin();
+      this.redirect();
+    } catch (err) {
+      this.error.set(
+        apiErrorMessage(err, 'Demo login is unavailable right now.'),
+      );
+    } finally {
+      this.loading.set(false);
+    }
   }
 
   private redirect(): void {

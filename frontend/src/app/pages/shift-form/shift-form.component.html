@@ -21,6 +21,10 @@
       </div>
     }
 
+    @if (error()) {
+      <div class="alert alert-error" data-testid="form-error">{{ error() }}</div>
+    }
+
     <form class="card form-card" (ngSubmit)="save()" novalidate>
       <div class="field">
         <label for="role">Role</label>
@@ -119,10 +123,10 @@
         <button
           type="submit"
           class="btn btn-primary"
-          [disabled]="saved()"
+          [disabled]="saved() || saving()"
           data-testid="form-submit"
         >
-          {{ isEdit ? 'Save changes' : 'Create shift' }}
+          {{ saving() ? 'Saving…' : isEdit ? 'Save changes' : 'Create shift' }}
         </button>
       </div>
     </form>

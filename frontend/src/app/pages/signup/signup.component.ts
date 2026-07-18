@@ -7,6 +7,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
+import { apiErrorMessage } from '../../core/auth.interceptor';
 
 @Component({
   selector: 'app-signup',
@@ -27,7 +28,7 @@ export class SignupComponent {
   error = signal<string | null>(null);
   loading = signal(false);
 
-  submit(): void {
+  async submit(): Promise<void> {
     this.error.set(null);
     if (!this.name().trim() || !this.email().trim() || !this.password()) {
       this.error.set('Please fill in every field.');
@@ -42,8 +43,15 @@ export class SignupComponent {
       return;
     }
     this.loading.set(true);
-    this.auth.signup(this.name(), this.email(), this.password());
-    this.loading.set(false);
-    this.router.navigateByUrl('/');
+    try {
+      await this.auth.signup(this.name(), this.email(), this.password());
+      this.router.navigateByUrl('/');
+    } catch (err) {
+      this.error.set(
+        apiErrorMessage(err, 'Could not create your account. Please try again.'),
+      );
+    } finally {
+      this.loading.set(false);
+    }
   }
 }

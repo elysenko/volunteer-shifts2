@@ -1,4 +1,6 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { Role, User } from './models';
 
 const STORAGE_KEY = 'shifthands.auth';
@@ -8,17 +10,26 @@ interface StoredAuth {
   user: User;
 }
 
+interface AuthResult {
+  token: string;
+  user: User;
+}
+
+/** Seeded demo coordinator used by the "Demo Mode" shortcut. */
+const DEMO_ADMIN = { email: 'admin@demo.org', password: 'admin1234' };
+
 /**
- * Mockup auth service.
+ * Auth service wired to the live NestJS `/api/auth/*` endpoints.
  *
- * Uses local state only (no backend). `login`/`signup` accept any credentials
- * and produce a session; `demoLogin` provisions a mock ADMIN so reviewers and
- * the screenshot capture system can inspect every authenticated screen without
- * a live backend. The service_agent stage will later wire these methods to the
- * real /api/auth/* (or tRPC) endpoints.
+ * `login`/`signup` POST real credentials and persist the returned JWT + user;
+ * `demoLogin` signs in as the seeded coordinator so reviewers can inspect the
+ * admin-only screens. The stored token is attached to every API request by the
+ * auth interceptor.
  */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private readonly http = inject(HttpClient);
+
   private readonly _user = signal<User | null>(this.restore()?.user ?? null);
   private readonly _token = signal<string | null>(
     this.restore()?.token ?? null,
@@ -29,33 +40,30 @@ export class AuthService {
   readonly isAuthenticated = computed(() => this._user() !== null);
   readonly isAdmin = computed(() => this._user()?.role === 'ADMIN');
 
-  login(email: string, _password: string): void {
-    const isAdmin = email.trim().toLowerCase().startsWith('admin');
-    this.persist({
-      id: isAdmin ? 'u-admin' : 'u-me',
-      email: email.trim(),
-      name: this.nameFromEmail(email),
-      role: isAdmin ? 'ADMIN' : 'USER',
-    });
+  async login(email: string, password: string): Promise<void> {
+    const res = await firstValueFrom(
+      this.http.post<AuthResult>('/api/auth/login', {
+        email: email.trim(),
+        password,
+      }),
+    );
+    this.persist(res.user, res.token);
   }
 
-  signup(name: string, email: string, _password: string): void {
-    // Public signup always creates a volunteer (USER) account.
-    this.persist({
-      id: 'u-me',
-      email: email.trim(),
-      name: name.trim() || this.nameFromEmail(email),
-      role: 'USER',
-    });
+  async signup(name: string, email: string, password: string): Promise<void> {
+    // Public signup always creates a volunteer (USER) account server-side.
+    const res = await firstValueFrom(
+      this.http.post<AuthResult>('/api/auth/signup', {
+        name: name.trim(),
+        email: email.trim(),
+        password,
+      }),
+    );
+    this.persist(res.user, res.token);
   }
 
-  demoLogin(): void {
-    this.persist({
-      id: 'u-admin',
-      email: 'admin@demo.org',
-      name: 'Demo Admin',
-      role: 'ADMIN',
-    });
+  async demoLogin(): Promise<void> {
+    await this.login(DEMO_ADMIN.email, DEMO_ADMIN.password);
   }
 
   logout(): void {
@@ -72,8 +80,7 @@ export class AuthService {
     }
   }
 
-  private persist(user: User): void {
-    const token = `mock.${user.role}.${user.id}`;
+  private persist(user: User, token: string): void {
     this._user.set(user);
     this._token.set(token);
     try {
@@ -95,15 +102,6 @@ export class AuthService {
     } catch {
       return null;
     }
-  }
-
-  private nameFromEmail(email: string): string {
-    const local = email.split('@')[0] ?? 'Volunteer';
-    return local
-      .split(/[._-]/)
-      .filter(Boolean)
-      .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
-      .join(' ');
   }
 
   roleLabel(role: Role): string {

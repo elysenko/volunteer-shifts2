@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  OnInit,
   computed,
   inject,
   signal,
@@ -8,7 +9,8 @@ import {
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NavBarComponent } from '../../components/nav-bar/nav-bar.component';
-import { Shift } from '../../core/models';
+import { ShiftsService, ShiftInput } from '../../core/shifts.service';
+import { apiErrorMessage } from '../../core/auth.interceptor';
 
 @Component({
   selector: 'app-shift-form',
@@ -18,37 +20,13 @@ import { Shift } from '../../core/models';
   templateUrl: './shift-form.component.html',
   styleUrl: './shift-form.component.css',
 })
-export class ShiftFormComponent {
+export class ShiftFormComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly shiftsService = inject(ShiftsService);
 
   readonly editId = this.route.snapshot.paramMap.get('id');
   readonly isEdit = !!this.editId;
-
-  // Seed catalogue used to preload the form in edit mode — signal per the
-  // data contract.
-  shifts = signal<Shift[]>([
-    {
-      id: 's1',
-      role: 'Food Bank Sorter',
-      location: 'Downtown Community Pantry',
-      startsAt: '2026-07-22T09:00:00',
-      hours: 3,
-      capacity: 8,
-      filled: 5,
-      signedUp: false,
-    },
-    {
-      id: 's3',
-      role: 'Garden Volunteer',
-      location: 'Hillcrest Community Garden',
-      startsAt: '2026-07-25T08:00:00',
-      hours: 2.5,
-      capacity: 10,
-      filled: 3,
-      signedUp: true,
-    },
-  ]);
 
   role = signal('');
   location = signal('');
@@ -58,6 +36,8 @@ export class ShiftFormComponent {
 
   submitted = signal(false);
   saved = signal(false);
+  saving = signal(false);
+  error = signal<string | null>(null);
 
   readonly roleError = computed(() =>
     this.submitted() && !this.role().trim() ? 'Role is required.' : null,
@@ -79,21 +59,24 @@ export class ShiftFormComponent {
       : null,
   );
 
-  constructor() {
-    if (this.isEdit) {
-      const existing = this.shifts().find((s) => s.id === this.editId);
-      if (existing) {
+  async ngOnInit(): Promise<void> {
+    if (this.isEdit && this.editId) {
+      try {
+        const existing = await this.shiftsService.get(this.editId);
         this.role.set(existing.role);
         this.location.set(existing.location);
         this.startsAt.set(existing.startsAt.slice(0, 16));
         this.hours.set(existing.hours);
         this.capacity.set(existing.capacity);
+      } catch (err) {
+        this.error.set(apiErrorMessage(err, 'Could not load this shift.'));
       }
     }
   }
 
-  save(): void {
+  async save(): Promise<void> {
     this.submitted.set(true);
+    this.error.set(null);
     if (
       this.roleError() ||
       this.locationError() ||
@@ -103,8 +86,29 @@ export class ShiftFormComponent {
     ) {
       return;
     }
-    this.saved.set(true);
-    setTimeout(() => this.router.navigate(['/']), 900);
+
+    const input: ShiftInput = {
+      role: this.role().trim(),
+      location: this.location().trim(),
+      startsAt: this.startsAt(),
+      hours: this.hours()!,
+      capacity: this.capacity()!,
+    };
+
+    this.saving.set(true);
+    try {
+      if (this.isEdit && this.editId) {
+        await this.shiftsService.update(this.editId, input);
+      } else {
+        await this.shiftsService.create(input);
+      }
+      this.saved.set(true);
+      setTimeout(() => this.router.navigate(['/']), 900);
+    } catch (err) {
+      this.error.set(apiErrorMessage(err, 'Could not save the shift.'));
+    } finally {
+      this.saving.set(false);
+    }
   }
 
   cancel(): void {
