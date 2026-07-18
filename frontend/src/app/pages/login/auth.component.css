@@ -1,0 +1,73 @@
+.auth {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5) var(--space-4)
+    calc(var(--space-6) + var(--safe-bottom));
+  background: radial-gradient(
+      1200px 600px at 50% -10%,
+      var(--color-primary-tint),
+      transparent
+    ),
+    var(--color-bg);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  padding: var(--space-6) var(--space-5);
+}
+
+.auth-brand {
+  text-align: center;
+  margin-bottom: var(--space-5);
+}
+.brand-mark {
+  font-size: 2.25rem;
+}
+.auth-title {
+  font-size: var(--fs-2xl);
+  color: var(--color-primary-strong);
+  margin: var(--space-2) 0 0;
+}
+.auth-tag {
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+  margin: var(--space-1) 0 0;
+}
+
+.auth-heading {
+  font-size: var(--fs-xl);
+  margin-bottom: var(--space-4);
+}
+
+.auth-alt {
+  text-align: center;
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+  margin-top: var(--space-4);
+}
+.auth-alt a {
+  font-weight: 600;
+}
+
+.demo-link {
+  display: block;
+  width: 100%;
+  margin-top: var(--space-4);
+  padding: var(--space-2);
+  background: none;
+  border: none;
+  border-top: 1px dashed var(--color-border-strong);
+  padding-top: var(--space-4);
+  color: var(--color-text-faint);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 44px;
+}
+.demo-link:hover {
+  color: var(--color-primary);
+}

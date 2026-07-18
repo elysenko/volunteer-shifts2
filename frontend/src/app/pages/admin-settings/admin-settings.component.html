@@ -1,0 +1,71 @@
+<app-nav-bar />
+
+<div class="page" data-testid="admin-settings-page">
+  <div class="page-inner settings-inner">
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">Admin Settings</h1>
+        <p class="page-subtitle">Configure service credentials for this deployment.</p>
+      </div>
+    </header>
+
+    @if (hasUnconfigured()) {
+      <div class="alert alert-info" data-testid="settings-banner">
+        ⚠️ Some services are not yet configured. Add their credentials below to enable them.
+      </div>
+    }
+
+    @if (saved()) {
+      <div class="alert alert-info" data-testid="settings-saved">
+        ✓ Credentials saved.
+      </div>
+    }
+
+    @for (svc of services(); track svc.name) {
+      <section class="card service-card" [attr.data-testid]="'service-' + svc.name">
+        <div class="service-head">
+          <h2 class="service-name">{{ svc.name }}</h2>
+          @if (svc.configured) {
+            <span class="badge badge-open" [attr.data-testid]="'status-' + svc.name">Configured</span>
+          } @else {
+            <span class="badge badge-full" [attr.data-testid]="'status-' + svc.name">Not configured</span>
+          }
+        </div>
+
+        @for (setting of svc.keys; track setting.key) {
+          <div class="field">
+            <label [attr.for]="setting.key">
+              {{ setting.label }}
+              <span class="key-name">{{ setting.key }}</span>
+            </label>
+            @if (setting.configured) {
+              <p class="current-value" [attr.data-testid]="'value-' + setting.key">
+                Current: <code>{{ setting.maskedValue }}</code>
+              </p>
+            }
+            <input
+              [id]="setting.key"
+              [name]="setting.key"
+              type="text"
+              [placeholder]="setting.placeholder"
+              [ngModel]="draftValue(setting.key)"
+              (ngModelChange)="setDraft(setting.key, $event)"
+              [attr.data-testid]="'input-' + setting.key"
+            />
+          </div>
+        }
+
+        <div class="service-actions">
+          <button
+            type="button"
+            class="btn btn-primary"
+            (click)="saveService(svc.name)"
+            [attr.data-testid]="'save-' + svc.name"
+          >
+            Save {{ svc.name }} credentials
+          </button>
+        </div>
+      </section>
+    }
+  </div>
+</div>

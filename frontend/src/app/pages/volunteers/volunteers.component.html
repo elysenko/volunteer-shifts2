@@ -1,0 +1,91 @@
+<app-nav-bar />
+
+<div class="page" data-testid="volunteers-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">Volunteers</h1>
+        <p class="page-subtitle">Roster of volunteers and their contributed hours.</p>
+      </div>
+    </header>
+
+    @if (loading()) {
+      <div class="skeleton" style="height: 200px"></div>
+    } @else if (error()) {
+      <div class="alert alert-error" data-testid="volunteers-error">{{ error() }}</div>
+    } @else if (volunteers().length === 0) {
+      <div class="empty-state card" data-testid="volunteers-empty">
+        <span class="emoji" aria-hidden="true">👥</span>
+        <h2>No volunteers yet</h2>
+        <p>Volunteers appear here once they sign up.</p>
+      </div>
+    } @else {
+      <!-- Desktop table -->
+      <div class="card roster-table-wrap" data-testid="volunteers-list">
+        <table class="roster-table">
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col" class="num">Total hours</th>
+              <th scope="col">Shifts</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (v of volunteers(); track v.id) {
+              <tr [attr.data-testid]="'volunteer-row-' + v.id">
+                <td>
+                  <div class="v-name">{{ v.name }}</div>
+                  <div class="v-email">{{ v.email }}</div>
+                </td>
+                <td class="num">
+                  <span class="badge badge-hours">{{ v.totalHours }}h</span>
+                </td>
+                <td>
+                  @if (v.shifts.length === 0) {
+                    <span class="v-none">No shifts</span>
+                  } @else {
+                    <ul class="v-shifts">
+                      @for (s of v.shifts; track s.id) {
+                        <li>
+                          <span class="v-shift-role">{{ s.role }}</span>
+                          <span class="v-shift-meta">{{ formatDay(s.startsAt) }} · {{ s.hours }}h</span>
+                        </li>
+                      }
+                    </ul>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile cards -->
+      <ul class="roster-cards">
+        @for (v of volunteers(); track v.id) {
+          <li class="card v-card">
+            <div class="v-card-head">
+              <div>
+                <div class="v-name">{{ v.name }}</div>
+                <div class="v-email">{{ v.email }}</div>
+              </div>
+              <span class="badge badge-hours">{{ v.totalHours }}h</span>
+            </div>
+            @if (v.shifts.length === 0) {
+              <p class="v-none">No shifts signed up.</p>
+            } @else {
+              <ul class="v-shifts">
+                @for (s of v.shifts; track s.id) {
+                  <li>
+                    <span class="v-shift-role">{{ s.role }}</span>
+                    <span class="v-shift-meta">{{ formatDay(s.startsAt) }} · {{ s.hours }}h</span>
+                  </li>
+                }
+              </ul>
+            }
+          </li>
+        }
+      </ul>
+    }
+  </div>
+</div>

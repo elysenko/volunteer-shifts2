@@ -1,0 +1,55 @@
+<app-nav-bar />
+
+<div class="page" data-testid="my-shifts-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">My Shifts</h1>
+        <p class="page-subtitle">Shifts you've signed up for.</p>
+      </div>
+      @if (shifts().length > 0) {
+        <div class="hours-tally" data-testid="my-total-hours">
+          <span class="hours-num">{{ totalHours() }}</span>
+          <span class="hours-label">total hours</span>
+        </div>
+      }
+    </header>
+
+    @if (loading()) {
+      <div class="skeleton" style="height: 160px"></div>
+    } @else if (error()) {
+      <div class="alert alert-error" data-testid="my-shifts-error">{{ error() }}</div>
+    } @else if (shifts().length === 0) {
+      <div class="empty-state card" data-testid="my-shifts-empty">
+        <span class="emoji" aria-hidden="true">🗓️</span>
+        <h2>No shifts yet</h2>
+        <p>Browse the board and sign up for your first shift.</p>
+        <a routerLink="/" class="btn btn-primary" data-testid="my-shifts-browse">
+          Browse the Shift Board
+        </a>
+      </div>
+    } @else {
+      <ul class="my-list" data-testid="my-shifts-list">
+        @for (shift of shifts(); track shift.id) {
+          <li>
+            <a
+              class="card my-row"
+              [routerLink]="['/shifts', shift.id]"
+              [attr.data-testid]="'my-shift-' + shift.id"
+            >
+              <div class="my-date" aria-hidden="true">
+                <span class="my-day">{{ formatDay(shift.startsAt) }}</span>
+                <span class="my-time">{{ formatTime(shift.startsAt) }}</span>
+              </div>
+              <div class="my-body">
+                <h2 class="my-role">{{ shift.role }}</h2>
+                <p class="my-loc">📍 {{ shift.location }}</p>
+              </div>
+              <span class="badge badge-hours">{{ shift.hours }}h</span>
+            </a>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+</div>

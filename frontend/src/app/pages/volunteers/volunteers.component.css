@@ -1,0 +1,82 @@
+.roster-table-wrap {
+  display: none;
+  overflow-x: auto;
+}
+.roster-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+.roster-table th,
+.roster-table td {
+  text-align: left;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: top;
+}
+.roster-table thead th {
+  color: var(--color-text-muted);
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.roster-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.v-name {
+  font-weight: 700;
+}
+.v-email {
+  color: var(--color-text-muted);
+  font-size: var(--fs-xs);
+}
+.v-none {
+  color: var(--color-text-faint);
+  font-size: var(--fs-sm);
+}
+.v-shifts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.v-shifts li {
+  display: flex;
+  flex-direction: column;
+}
+.v-shift-role {
+  font-weight: 600;
+}
+.v-shift-meta {
+  color: var(--color-text-muted);
+  font-size: var(--fs-xs);
+}
+
+.roster-cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.v-card {
+  padding: var(--space-4);
+}
+.v-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+@media (min-width: 769px) {
+  .roster-table-wrap {
+    display: block;
+  }
+  .roster-cards {
+    display: none;
+  }
+}

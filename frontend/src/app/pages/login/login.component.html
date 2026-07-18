@@ -1,0 +1,67 @@
+<main class="auth" data-testid="login-page">
+  <section class="auth-card card">
+    <div class="auth-brand">
+      <span class="brand-mark" aria-hidden="true">🤝</span>
+      <h1 class="auth-title">ShiftHands</h1>
+      <p class="auth-tag">Volunteer shift scheduling made simple.</p>
+    </div>
+
+    <h2 class="auth-heading">Sign in</h2>
+
+    @if (error()) {
+      <div class="alert alert-error" data-testid="login-error">{{ error() }}</div>
+    }
+
+    <form (ngSubmit)="submit()" novalidate>
+      <div class="field">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          autocomplete="email"
+          placeholder="you@example.org"
+          [ngModel]="email()"
+          (ngModelChange)="email.set($event)"
+          data-testid="login-email"
+        />
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          autocomplete="current-password"
+          placeholder="••••••••"
+          [ngModel]="password()"
+          (ngModelChange)="password.set($event)"
+          data-testid="login-password"
+        />
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-primary btn-block"
+        [disabled]="loading()"
+        data-testid="login-submit"
+      >
+        {{ loading() ? 'Signing in…' : 'Sign in' }}
+      </button>
+    </form>
+
+    <p class="auth-alt">
+      New volunteer?
+      <a routerLink="/signup" data-testid="link-signup">Create an account</a>
+    </p>
+
+    <button
+      type="button"
+      class="demo-link"
+      (click)="demo()"
+      data-testid="demo-login"
+    >
+      Skip login — explore Demo Mode
+    </button>
+  </section>
+</main>

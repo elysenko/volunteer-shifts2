@@ -1,0 +1,69 @@
+<app-nav-bar />
+
+<div class="page" data-testid="shift-board-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">Volunteer Shift Board</h1>
+        <p class="page-subtitle">Upcoming volunteer shifts — pick one and sign up.</p>
+      </div>
+      @if (isAdmin()) {
+        <a routerLink="/shifts/new" class="btn btn-primary" data-testid="new-shift-cta">
+          <span aria-hidden="true">➕</span> New Shift
+        </a>
+      }
+    </header>
+
+    @if (loading()) {
+      <ul class="board-grid" data-testid="board-loading">
+        @for (n of [1, 2, 3, 4]; track n) {
+          <li class="card shift-card">
+            <div class="skeleton" style="height: 120px"></div>
+          </li>
+        }
+      </ul>
+    } @else if (error()) {
+      <div class="alert alert-error" data-testid="board-error">{{ error() }}</div>
+    } @else if (shifts().length === 0) {
+      <div class="empty-state card" data-testid="board-empty">
+        <span class="emoji" aria-hidden="true">📭</span>
+        <h2>No upcoming shifts</h2>
+        <p>Check back soon — new shifts are added regularly.</p>
+      </div>
+    } @else {
+      <ul class="board-grid" data-testid="board-list">
+        @for (shift of shifts(); track shift.id) {
+          <li>
+            <a
+              class="card shift-card"
+              [routerLink]="['/shifts', shift.id]"
+              [attr.data-testid]="'shift-card-' + shift.id"
+            >
+              <div class="shift-card-top">
+                <span class="shift-date" aria-hidden="true">
+                  <span class="dot">📅</span>{{ formatDay(shift.startsAt) }}
+                </span>
+                @if (open(shift) > 0) {
+                  <span class="badge badge-open">{{ open(shift) }} open</span>
+                } @else {
+                  <span class="badge badge-full">Full</span>
+                }
+              </div>
+
+              <h2 class="shift-role">{{ shift.role }}</h2>
+              <p class="shift-loc"><span aria-hidden="true">📍</span>{{ shift.location }}</p>
+
+              <div class="shift-meta">
+                <span>🕒 {{ formatTime(shift.startsAt) }}</span>
+                <span class="badge badge-hours">{{ shift.hours }}h</span>
+                @if (shift.signedUp) {
+                  <span class="badge badge-admin">✓ Signed up</span>
+                }
+              </div>
+            </a>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+</div>

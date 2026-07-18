@@ -1,0 +1,63 @@
+.hours-tally {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-accent-soft);
+  border-radius: var(--radius-md);
+  color: var(--color-accent);
+  line-height: 1;
+}
+.hours-num {
+  font-size: var(--fs-xl);
+  font-weight: 800;
+}
+.hours-label {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+}
+
+.my-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.my-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  min-height: 44px;
+}
+.my-row:active {
+  background: var(--color-surface-alt);
+}
+.my-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 76px;
+  padding-right: var(--space-4);
+  border-right: 1px solid var(--color-border);
+}
+.my-day {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+}
+.my-time {
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+}
+.my-body {
+  flex: 1;
+  min-width: 0;
+}
+.my-role {
+  font-size: var(--fs-base);
+  margin-bottom: 2px;
+}
+.my-loc {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+}

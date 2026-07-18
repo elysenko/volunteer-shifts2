@@ -1,0 +1,80 @@
+<app-nav-bar />
+
+<div class="page" data-testid="shift-detail-page">
+  <div class="page-inner detail-inner">
+    <a routerLink="/" class="back-link" data-testid="detail-back">← Back to board</a>
+
+    @if (loading()) {
+      <div class="skeleton" style="height: 240px"></div>
+    } @else if (error()) {
+      <div class="alert alert-error" data-testid="detail-error">{{ error() }}</div>
+    } @else {
+      @if (shift(); as s) {
+        <article class="card detail-card">
+          <div class="detail-head">
+            @if (open() > 0) {
+              <span class="badge badge-open" data-testid="detail-slots">{{ open() }} slots open</span>
+            } @else {
+              <span class="badge badge-full" data-testid="detail-slots">Full</span>
+            }
+            <span class="badge badge-hours">{{ s.hours }} hours</span>
+          </div>
+
+          <h1 class="detail-role" data-testid="detail-role">{{ s.role }}</h1>
+
+          <dl class="detail-facts">
+            <div>
+              <dt>📅 When</dt>
+              <dd>{{ formatDay(s.startsAt) }} at {{ formatTime(s.startsAt) }}</dd>
+            </div>
+            <div>
+              <dt>📍 Where</dt>
+              <dd>{{ s.location }}</dd>
+            </div>
+            <div>
+              <dt>👥 Capacity</dt>
+              <dd>{{ s.filled }} of {{ s.capacity }} filled</dd>
+            </div>
+          </dl>
+
+          @if (signupMessage()) {
+            <div class="alert alert-info" data-testid="detail-signup-message">
+              {{ signupMessage() }}
+            </div>
+          }
+        </article>
+
+        <div class="detail-actions">
+          @if (isAdmin()) {
+            <a
+              [routerLink]="['/shifts', s.id, 'edit']"
+              class="btn btn-outline"
+              data-testid="detail-edit"
+            >
+              ✏️ Edit shift
+            </a>
+          }
+
+          @if (s.signedUp) {
+            <button class="btn btn-primary btn-block" disabled data-testid="detail-signup">
+              ✓ You're signed up
+            </button>
+          } @else if (open() <= 0) {
+            <button class="btn btn-primary btn-block" disabled data-testid="detail-signup">
+              Shift is full
+            </button>
+          } @else {
+            <button
+              class="btn btn-primary btn-block"
+              (click)="signUp()"
+              [disabled]="signupPending()"
+              data-testid="detail-signup"
+            >
+              {{ signupPending() ? 'Signing up…' : 'Sign up for this shift' }}
+            </button>
+          }
+        </div>
+      }
+    }
+  </div>
+</div>

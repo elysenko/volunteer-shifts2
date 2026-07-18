@@ -1,0 +1,60 @@
+<header class="topbar" data-testid="topbar">
+  <a routerLink="/" class="brand" data-testid="brand">
+    <span class="brand-mark">🤝</span>
+    <span class="brand-text">ShiftHands</span>
+  </a>
+
+  <nav class="desktop-nav" aria-label="Primary">
+    @for (item of items(); track item.path) {
+      <a
+        class="desktop-link"
+        [routerLink]="item.path"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: item.exact }"
+        [attr.data-testid]="'nav-link-' + item.label"
+      >
+        <span class="link-icon" aria-hidden="true">{{ item.icon }}</span>
+        {{ item.label }}
+      </a>
+    }
+  </nav>
+
+  <div class="topbar-right">
+    <div class="user-chip" data-testid="user-chip">
+      <span class="avatar" aria-hidden="true">{{ initials() }}</span>
+      <span class="user-meta">
+        <span class="user-name">{{ user()?.name }}</span>
+        @if (isAdmin()) {
+          <span class="badge badge-admin">Coordinator</span>
+        } @else {
+          <span class="badge badge-muted">Volunteer</span>
+        }
+      </span>
+    </div>
+    <button
+      type="button"
+      class="logout-btn"
+      (click)="logout()"
+      data-testid="logout-button"
+      aria-label="Log out"
+    >
+      <span aria-hidden="true">⏻</span>
+      <span class="logout-label">Logout</span>
+    </button>
+  </div>
+</header>
+
+<nav class="tabbar" aria-label="Primary mobile" data-testid="tabbar">
+  @for (item of items(); track item.path) {
+    <a
+      class="tab"
+      [routerLink]="item.path"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: item.exact }"
+      [attr.data-testid]="'tab-' + item.label"
+    >
+      <span class="tab-icon" aria-hidden="true">{{ item.icon }}</span>
+      <span class="tab-label">{{ item.label }}</span>
+    </a>
+  }
+</nav>

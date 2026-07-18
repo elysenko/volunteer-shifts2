@@ -1,21 +1,70 @@
 {
   "_generated": true,
   "_scaffolded_at": "2026-07-18T09:48:30Z",
+  "_updated_by": "ui_agent",
   "fileBudget": { "maxLines": 400, "hardLimit": 500 },
   "routes": [
     { "method": "GET", "path": "/health" },
-    { "method": "GET", "path": "/trpc/users.findAll" },
-    { "method": "GET", "path": "/trpc/users.findById" }
+    { "method": "POST", "path": "/api/auth/signup" },
+    { "method": "POST", "path": "/api/auth/login" },
+    { "method": "GET", "path": "/api/auth/me" },
+    { "method": "GET", "path": "/api/shifts" },
+    { "method": "GET", "path": "/api/shifts/:id" },
+    { "method": "POST", "path": "/api/shifts" },
+    { "method": "PUT", "path": "/api/shifts/:id" },
+    { "method": "POST", "path": "/api/shifts/:id/signup" },
+    { "method": "GET", "path": "/api/me/shifts" },
+    { "method": "GET", "path": "/api/volunteers" },
+    { "method": "GET", "path": "/api/admin/settings" },
+    { "method": "PATCH", "path": "/api/admin/settings" }
+  ],
+  "spaRoutes": [
+    { "path": "/login", "component": "app-login", "guard": "public" },
+    { "path": "/signup", "component": "app-signup", "guard": "public" },
+    { "path": "/", "component": "app-shift-board", "guard": "auth" },
+    { "path": "/shifts/:id", "component": "app-shift-detail", "guard": "auth" },
+    { "path": "/shifts/new", "component": "app-shift-form", "guard": "admin" },
+    { "path": "/shifts/:id/edit", "component": "app-shift-form", "guard": "admin" },
+    { "path": "/my-shifts", "component": "app-my-shifts", "guard": "auth" },
+    { "path": "/volunteers", "component": "app-volunteers", "guard": "admin" },
+    { "path": "/admin/settings", "component": "app-admin-settings", "guard": "admin" }
   ],
   "components": [
     { "selector": "app-root", "file": "frontend/src/app/app.component.ts", "maxLines": 400 },
-    { "selector": "app-home", "file": "frontend/src/app/home/home.component.ts", "maxLines": 400 }
+    { "selector": "app-nav-bar", "file": "frontend/src/app/components/nav-bar/nav-bar.component.ts", "maxLines": 400 },
+    { "selector": "app-login", "file": "frontend/src/app/pages/login/login.component.ts", "maxLines": 400 },
+    { "selector": "app-signup", "file": "frontend/src/app/pages/signup/signup.component.ts", "maxLines": 400 },
+    { "selector": "app-shift-board", "file": "frontend/src/app/pages/shift-board/shift-board.component.ts", "maxLines": 400 },
+    { "selector": "app-shift-detail", "file": "frontend/src/app/pages/shift-detail/shift-detail.component.ts", "maxLines": 400 },
+    { "selector": "app-shift-form", "file": "frontend/src/app/pages/shift-form/shift-form.component.ts", "maxLines": 400 },
+    { "selector": "app-my-shifts", "file": "frontend/src/app/pages/my-shifts/my-shifts.component.ts", "maxLines": 400 },
+    { "selector": "app-volunteers", "file": "frontend/src/app/pages/volunteers/volunteers.component.ts", "maxLines": 400 },
+    { "selector": "app-admin-settings", "file": "frontend/src/app/pages/admin-settings/admin-settings.component.ts", "maxLines": 400 }
   ],
   "testIds": [
-    { "id": "home-main", "element": "main", "component": "app-home" },
-    { "id": "home-title", "element": "h1", "component": "app-home" },
-    { "id": "users-loading", "element": "p", "component": "app-home" },
-    { "id": "users-error", "element": "p", "component": "app-home" },
-    { "id": "users-list", "element": "ul", "component": "app-home" }
+    { "id": "app-ready", "element": "div", "component": "app-root" },
+    { "id": "login-page", "element": "main", "component": "app-login" },
+    { "id": "login-email", "element": "input", "component": "app-login" },
+    { "id": "login-password", "element": "input", "component": "app-login" },
+    { "id": "login-submit", "element": "button", "component": "app-login" },
+    { "id": "demo-login", "element": "button", "component": "app-login" },
+    { "id": "signup-page", "element": "main", "component": "app-signup" },
+    { "id": "signup-submit", "element": "button", "component": "app-signup" },
+    { "id": "shift-board-page", "element": "div", "component": "app-shift-board" },
+    { "id": "board-list", "element": "ul", "component": "app-shift-board" },
+    { "id": "new-shift-cta", "element": "a", "component": "app-shift-board" },
+    { "id": "shift-detail-page", "element": "div", "component": "app-shift-detail" },
+    { "id": "detail-signup", "element": "button", "component": "app-shift-detail" },
+    { "id": "detail-edit", "element": "a", "component": "app-shift-detail" },
+    { "id": "shift-form-page", "element": "div", "component": "app-shift-form" },
+    { "id": "form-submit", "element": "button", "component": "app-shift-form" },
+    { "id": "my-shifts-page", "element": "div", "component": "app-my-shifts" },
+    { "id": "my-shifts-list", "element": "ul", "component": "app-my-shifts" },
+    { "id": "my-total-hours", "element": "div", "component": "app-my-shifts" },
+    { "id": "volunteers-page", "element": "div", "component": "app-volunteers" },
+    { "id": "volunteers-list", "element": "div", "component": "app-volunteers" },
+    { "id": "admin-settings-page", "element": "div", "component": "app-admin-settings" },
+    { "id": "tabbar", "element": "nav", "component": "app-nav-bar" },
+    { "id": "logout-button", "element": "button", "component": "app-nav-bar" }
   ]
 }

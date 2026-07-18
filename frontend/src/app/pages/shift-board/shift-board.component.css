@@ -1,0 +1,55 @@
+.board-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-4);
+}
+
+.shift-card {
+  display: block;
+  padding: var(--space-4);
+  height: 100%;
+  transition: transform 0.1s ease, box-shadow 0.15s ease;
+}
+.shift-card:hover {
+  box-shadow: var(--shadow-md);
+}
+.shift-card:active {
+  transform: scale(0.99);
+}
+
+.shift-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+.shift-date {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.shift-role {
+  font-size: var(--fs-lg);
+  margin-bottom: var(--space-1);
+}
+.shift-loc {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+  margin-bottom: var(--space-3);
+}
+
+.shift-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+}

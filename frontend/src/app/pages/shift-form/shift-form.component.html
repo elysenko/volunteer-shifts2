@@ -1,0 +1,130 @@
+<app-nav-bar />
+
+<div class="page" data-testid="shift-form-page">
+  <div class="page-inner form-inner">
+    <a routerLink="/" class="back-link" data-testid="form-back">← Back to board</a>
+
+    <header class="page-header">
+      <div>
+        <h1 class="page-title" data-testid="form-title">
+          {{ isEdit ? 'Edit Shift' : 'New Shift' }}
+        </h1>
+        <p class="page-subtitle">
+          {{ isEdit ? 'Update the details of this shift.' : 'Create a shift for volunteers to sign up.' }}
+        </p>
+      </div>
+    </header>
+
+    @if (saved()) {
+      <div class="alert alert-info" data-testid="form-saved">
+        ✓ Shift {{ isEdit ? 'updated' : 'created' }}. Returning to the board…
+      </div>
+    }
+
+    <form class="card form-card" (ngSubmit)="save()" novalidate>
+      <div class="field">
+        <label for="role">Role</label>
+        <input
+          id="role"
+          name="role"
+          type="text"
+          placeholder="e.g. Food Bank Sorter"
+          [ngModel]="role()"
+          (ngModelChange)="role.set($event)"
+          data-testid="form-role"
+        />
+        @if (roleError()) {
+          <span class="error" data-testid="form-role-error">{{ roleError() }}</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="location">Location</label>
+        <input
+          id="location"
+          name="location"
+          type="text"
+          placeholder="e.g. Downtown Community Pantry"
+          [ngModel]="location()"
+          (ngModelChange)="location.set($event)"
+          data-testid="form-location"
+        />
+        @if (locationError()) {
+          <span class="error" data-testid="form-location-error">{{ locationError() }}</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="startsAt">Starts at</label>
+        <input
+          id="startsAt"
+          name="startsAt"
+          type="datetime-local"
+          [ngModel]="startsAt()"
+          (ngModelChange)="startsAt.set($event)"
+          data-testid="form-startsAt"
+        />
+        @if (startsAtError()) {
+          <span class="error" data-testid="form-startsAt-error">{{ startsAtError() }}</span>
+        }
+      </div>
+
+      <div class="form-row">
+        <div class="field">
+          <label for="hours">Hours</label>
+          <input
+            id="hours"
+            name="hours"
+            type="number"
+            min="0.5"
+            step="0.5"
+            placeholder="3"
+            [ngModel]="hours()"
+            (ngModelChange)="hours.set($event)"
+            data-testid="form-hours"
+          />
+          @if (hoursError()) {
+            <span class="error" data-testid="form-hours-error">{{ hoursError() }}</span>
+          }
+        </div>
+
+        <div class="field">
+          <label for="capacity">Capacity</label>
+          <input
+            id="capacity"
+            name="capacity"
+            type="number"
+            min="1"
+            step="1"
+            placeholder="8"
+            [ngModel]="capacity()"
+            (ngModelChange)="capacity.set($event)"
+            data-testid="form-capacity"
+          />
+          @if (capacityError()) {
+            <span class="error" data-testid="form-capacity-error">{{ capacityError() }}</span>
+          }
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button
+          type="button"
+          class="btn btn-outline"
+          (click)="cancel()"
+          data-testid="form-cancel"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="saved()"
+          data-testid="form-submit"
+        >
+          {{ isEdit ? 'Save changes' : 'Create shift' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
