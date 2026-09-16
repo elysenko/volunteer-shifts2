@@ -1,0 +1,71 @@
+{
+  "site": {
+    "name": "tu-prep-xe17eox5",
+    "site_id": "tu-prep-xe17eox5"
+  },
+  "meta": {
+    "generated_by": "declared"
+  },
+  "front_end": {
+    "pages": [
+      {
+        "name": "Home",
+        "page_id": "home",
+        "url": "/",
+        "linked_page_ids": []
+      },
+      {
+        "name": "Settings",
+        "page_id": "admin-settings",
+        "url": "/admin/settings",
+        "linked_page_ids": []
+      },
+      {
+        "name": "Login",
+        "page_id": "login",
+        "url": "/login",
+        "linked_page_ids": []
+      },
+      {
+        "name": "My-shifts",
+        "page_id": "my-shifts",
+        "url": "/my-shifts",
+        "linked_page_ids": []
+      },
+      {
+        "name": ":id",
+        "page_id": "shifts-id",
+        "url": "/shifts/:id",
+        "linked_page_ids": []
+      },
+      {
+        "name": "Edit",
+        "page_id": "shifts-id-edit",
+        "url": "/shifts/:id/edit",
+        "linked_page_ids": []
+      },
+      {
+        "name": "New",
+        "page_id": "shifts-new",
+        "url": "/shifts/new",
+        "linked_page_ids": []
+      },
+      {
+        "name": "Signup",
+        "page_id": "signup",
+        "url": "/signup",
+        "linked_page_ids": []
+      },
+      {
+        "name": "Volunteers",
+        "page_id": "volunteers",
+        "url": "/volunteers",
+        "linked_page_ids": []
+      }
+    ]
+  },
+  "back_end": {
+    "tables": []
+  },
+  "generated_by": "declared"
+}
